@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="eab31280-a464-4272-ad18-e2da4fed6855" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="asiigemnt3Flow1" doc:id="fa64629a-cf86-4e6c-a7e3-5555e79a415d" >
+		<logger level="INFO" doc:name="Logger" doc:id="b19ed255-58ef-414e-8736-8e8a2508b2db" />
+	</flow>
+	<flow name="asiigemnt3Flow2" doc:id="fab7a7b1-aa20-4f3a-94ff-6c2fd8470af5" >
+		<logger level="INFO" doc:name="Logger" doc:id="43a945e2-a89a-46a8-b6f3-b535070e8c1d" />
+	</flow>
+	<flow name="asiigemnt3Flow" doc:id="5097c56b-c0f7-4bcb-8bfd-53a671e7829f" >
+		<http:listener doc:name="Listener" doc:id="12d41f9b-a619-41a2-ba39-59f594f988e0" config-ref="HTTP_Listener_config" path="/calculate"/>
+		<ee:transform doc:name="Transform Message" doc:id="ee94ccdf-219a-4511-b547-8f4f10f55926" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="num1" ><![CDATA[attributes.queryParams.num1
+]]></ee:set-variable>
+				<ee:set-variable variableName="num2" ><![CDATA[attributes.queryParams.num2]]></ee:set-variable>
+				<ee:set-variable variableName="equation" ><![CDATA[attributes.queryParams.equation]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="d402c04a-ffb0-42f6-aece-4ae5c87dc955" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="luel" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+} 123r5]]></ee:set-variable>
+				<ee:set-variable variableName="elia" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<batch:job jobName="asiigemnt3Batch_Job" doc:id="4799a3e8-a475-4526-bbfa-428bb47284b2" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="2b409a41-ec84-49db-8b89-7e4369af5583" />
+			</batch:process-records>
+		</batch:job>
+		<choice doc:name="Choice" doc:id="84bd44c5-b73f-484c-bb48-cd618dca4bae" >
+			<when expression='#[vars.equation == "PLUS"]'>
+				<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;result : vars.num1 as Number + vars.num2 as Number	&#10;}]" doc:name="Set Payload" doc:id="44a715b6-38fa-4af1-a405-d2ff919c2b37" />
+				<logger level="INFO" doc:name="Logger" doc:id="1ce23d79-6e44-4492-9e0a-ffe2a69f3b5c" message="#[payload]"/>
+			</when>
+			<when expression='#[vars.equation == "minus"]'>
+				<set-payload value="#[%dw 2.0&#10;output application/json&#10;---{&#10;	result: vars.num1 as Number - vars.num2 as Number&#10;}]" doc:name="Set Payload" doc:id="85223713-8d4e-43d7-aad7-75c4a5e2ec59" />
+				<logger level="INFO" doc:name="Logger" doc:id="abb9fb87-17d8-461d-b6b3-90067c257c00" message="#[{&#10;	result: vars.num1 as Number - vars.num2 as Number&#10;}]"/>
+			</when>
+			<when expression='#[vars.equation == "multpilcation"]'>
+				<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	result: vars.num1 as Number * vars.num2 as Number&#10;}]" doc:name="Set Payload" doc:id="3d253bce-ad55-4420-872e-3caa2b0f983a" />
+				<logger level="INFO" doc:name="Logger" doc:id="6322cfee-ddfd-4f49-a12d-f37f7b33747c" message="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	result: vars.num1 as Number * vars.num2 as Number&#10;}]"/>
+			</when>
+			<when expression='#[vars.equation == "divid"]'>
+				<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	result: vars.num1 as Number / vars.num2 as Number&#10;}]" doc:name="Set Payload" doc:id="ff66c43d-2f5d-4618-90fd-5b7185de2a07" />
+				<logger level="INFO" doc:name="Logger" doc:id="2c0e481b-9c1c-4caa-95f6-18c8d8c11cf1" message="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	result: vars.num1 as Number / vars.num2 as Number&#10;}]"/>
+			</when>
+			<otherwise >
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	result: "invalid"&#10;}]' doc:name="Set Payload" doc:id="2e65ba31-4e95-44b0-a8fc-09a25301eb95" />
+				<logger level="INFO" doc:name="Logger" doc:id="5dd78266-cbfe-45d3-8d8d-7899f16ce7ed" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	result: "invalid"&#10;}]'/>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
